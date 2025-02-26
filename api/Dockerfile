@@ -1,7 +1,7 @@
 # Use official PHP 7.4 FPM image
 FROM php:7.4-fpm
 
-# Set working directories - support both paths
+# Set working directories
 WORKDIR /app
 
 # Install system dependencies
@@ -30,8 +30,8 @@ RUN docker-php-ext-install \
     soap \
     opcache
 
-# Install Composer globally (fixing composer issue)
-COPY --from=composer:2.2 /usr/bin/composer /usr/local/bin/composer
+# Install Composer properly (Fix for Railway deployment)
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Verify Composer installation
 RUN composer --version
@@ -42,11 +42,11 @@ RUN mkdir -p /var/log/nginx /var/cache/nginx
 # Copy application files
 COPY . /app/
 
-# Create symbolic link to support both directory structures
-RUN ln -s /app /var/www/api
+# Ensure Composer runs from correct path
+ENV PATH="/usr/local/bin:$PATH"
 
-# Install dependencies with explicit path
-RUN /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
+# Install dependencies (Fix for Composer issue)
+RUN cd /app && composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
 # Compile Swiss Ephemeris if needed
 RUN if [ -d "/app/swetest/src" ]; then \
@@ -56,7 +56,7 @@ RUN if [ -d "/app/swetest/src" ]; then \
 # Set permissions
 RUN chown -R www-data:www-data /app
 
-# Configure Nginx - reference both possible document roots
+# Configure Nginx
 RUN echo ' \
 server { \
     listen 9393; \
