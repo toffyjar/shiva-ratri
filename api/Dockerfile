@@ -30,14 +30,14 @@ RUN docker-php-ext-install \
     soap \
     opcache
 
-# Install Composer globally
-RUN curl -sS https://getcomposer.org/installer | php \
-    && mv composer.phar /usr/local/bin/composer \
-    && chmod +x /usr/local/bin/composer \
-    && composer --version
+# Install Composer globally (fixing composer issue)
+COPY --from=composer:2.2 /usr/bin/composer /usr/local/bin/composer
+
+# Verify Composer installation
+RUN composer --version
 
 # Create necessary directories
-RUN mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx
+RUN mkdir -p /var/log/nginx /var/cache/nginx
 
 # Copy application files
 COPY . /app/
@@ -46,7 +46,7 @@ COPY . /app/
 RUN ln -s /app /var/www/api
 
 # Install dependencies with explicit path
-RUN cd /app && /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
+RUN /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
 # Compile Swiss Ephemeris if needed
 RUN if [ -d "/app/swetest/src" ]; then \
