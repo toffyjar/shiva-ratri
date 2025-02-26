@@ -1,8 +1,8 @@
 # Use official PHP 7.4 FPM image
 FROM php:7.4-fpm
 
-# Set working directory
-WORKDIR /var/www/api
+# Set working directories - support both paths
+WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update -y && apt-get install -y \
@@ -14,7 +14,10 @@ RUN apt-get update -y && apt-get install -y \
     libpng-dev \
     curl \
     nginx \
-    supervisor
+    supervisor \
+    make \
+    gcc \
+    libc6-dev
 
 # Install PHP extensions
 RUN docker-php-ext-install \
@@ -27,29 +30,37 @@ RUN docker-php-ext-install \
     soap \
     opcache
 
-# Install Composer (with improved installation)
+# Install Composer globally
 RUN curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer \
     && chmod +x /usr/local/bin/composer \
     && composer --version
 
-# Copy application files
-COPY . .
-
 # Create necessary directories
 RUN mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx
 
-# Install dependencies with explicit path and verbose output
-RUN /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs --verbose
+# Copy application files
+COPY . /app/
+
+# Create symbolic link to support both directory structures
+RUN ln -s /app /var/www/api
+
+# Install dependencies with explicit path
+RUN cd /app && /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
+
+# Compile Swiss Ephemeris if needed
+RUN if [ -d "/app/swetest/src" ]; then \
+    cd /app/swetest/src && make clean && make && chmod 777 . && chmod +x swetest; \
+    fi
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/api
+RUN chown -R www-data:www-data /app
 
-# Configure Nginx
+# Configure Nginx - reference both possible document roots
 RUN echo ' \
 server { \
     listen 9393; \
-    root /var/www/api/public; \
+    root /app/public; \
     index index.php index.html index.htm; \
     server_name _; \
     \
@@ -68,7 +79,7 @@ server { \
     } \
 }' > /etc/nginx/sites-available/default
 
-# Configure Supervisor to manage processes
+# Configure Supervisor
 RUN echo '[supervisord] \
 nodaemon=true \
 [program:nginx] \
@@ -87,5 +98,5 @@ stdout_logfile=/var/log/php7.4-fpm.log' > /etc/supervisor/conf.d/supervisord.con
 # Expose port
 EXPOSE 9393
 
-# Start Supervisor to run both Nginx and PHP-FPM
+# Start Supervisor
 CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
