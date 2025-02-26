@@ -1,4 +1,4 @@
-# Use official PHP 7.4 FPM image (lighter and optimized)
+# Use official PHP 7.4 FPM image
 FROM php:7.4-fpm
 
 # Set working directory
@@ -27,20 +27,23 @@ RUN docker-php-ext-install \
     soap \
     opcache
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
-    /usr/local/bin/composer --version
+# Install Composer (fix for missing command)
+RUN curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer \
+    && chmod +x /usr/local/bin/composer \
+    && composer --version
+
+# Ensure Composer is available in $PATH
+ENV PATH="/usr/local/bin:$PATH"
 
 # Copy application files
 COPY . .
 
-# Install dependencies with full Composer path
-RUN /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction
+# Install dependencies using full path
+RUN /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
-# Set proper permissions
-RUN mkdir -p /var/www/api/var/cache /var/www/api/var/log && \
-    chown -R www-data:www-data /var/www/api/var && \
-    chmod -R 777 /var/www/api/var
+# Set permissions
+RUN chown -R www-data:www-data /var/www/api
 
 # Configure Nginx
 RUN echo ' \
