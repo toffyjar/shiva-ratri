@@ -1,9 +1,9 @@
 services:
-  jyotish_api:
+  shiva_ratri:
     build:
       context: ./api
       dockerfile: Dockerfile
-    container_name: jyotish_api
+    container_name: shiva_ratri
     ports:
       - "9393:9393"
     volumes:
