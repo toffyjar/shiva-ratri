@@ -1,10 +1,10 @@
 # Use official PHP 7.4 FPM image
 FROM php:7.4-fpm
 
-# Set working directories
+# Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Update and install required system dependencies
 RUN apt-get update -y && apt-get install -y \
     git \
     unzip \
@@ -17,10 +17,13 @@ RUN apt-get update -y && apt-get install -y \
     supervisor \
     make \
     gcc \
-    libc6-dev
+    libc6-dev \
+    mariadb-client \
+    libxml2-dev
 
-# Install PHP extensions
-RUN docker-php-ext-install \
+# Ensure required PHP extensions dependencies are installed
+RUN docker-php-ext-configure intl && \
+    docker-php-ext-install \
     pdo_mysql \
     intl \
     mbstring \
@@ -30,28 +33,17 @@ RUN docker-php-ext-install \
     soap \
     opcache
 
-# Install Composer properly (Fix for Railway deployment)
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Install Composer globally
+RUN curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer \
+    && chmod +x /usr/local/bin/composer \
+    && composer --version
 
-# Verify Composer installation
-RUN composer --version
-
-# Create necessary directories
+# Create necessary directories for logs
 RUN mkdir -p /var/log/nginx /var/cache/nginx
 
 # Copy application files
 COPY . /app/
-
-# Ensure Composer runs from correct path
-ENV PATH="/usr/local/bin:$PATH"
-
-# Install dependencies (Fix for Composer issue)
-RUN cd /app && composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
-
-# Compile Swiss Ephemeris if needed
-RUN if [ -d "/app/swetest/src" ]; then \
-    cd /app/swetest/src && make clean && make && chmod 777 . && chmod +x swetest; \
-    fi
 
 # Set permissions
 RUN chown -R www-data:www-data /app
