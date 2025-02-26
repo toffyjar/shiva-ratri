@@ -27,20 +27,20 @@ RUN docker-php-ext-install \
     soap \
     opcache
 
-# Install Composer (fix for missing command)
+# Install Composer (with improved installation)
 RUN curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer \
     && chmod +x /usr/local/bin/composer \
     && composer --version
 
-# Ensure Composer is available in $PATH
-ENV PATH="/usr/local/bin:$PATH"
-
 # Copy application files
 COPY . .
 
-# Install dependencies using full path
-RUN /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
+# Create necessary directories
+RUN mkdir -p /var/log/nginx && mkdir -p /var/cache/nginx
+
+# Install dependencies with explicit path and verbose output
+RUN /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs --verbose
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/api
