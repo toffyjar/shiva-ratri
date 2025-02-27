@@ -57,7 +57,7 @@ RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy composer.json and composer.lock
-COPY composer.json ./
+COPY api/composer.json ./
 
 # Install composer dependencies
 RUN set -eux; \
