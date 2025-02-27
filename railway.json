@@ -1,7 +1,0 @@
-{
-    "build": {
-      "dockerfile": "api/Dockerfile",
-      "context": "api"
-    }
-  }
-  
