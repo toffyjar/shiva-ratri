@@ -79,11 +79,11 @@ class Analysis
             next($karakas);
         }
         $graha_map = [
-            "Sy" => "Su",
-            "Ch" => "Mo",
-            "Bu" => "Me",
-            "Sk" => "Ve",
-            "Gu" => "Ju"
+            "Su" => "Su",
+            "Mo" => "Mo",
+            "Me" => "Me",
+            "Ve" => "Ve",
+            "Ju" => "Ju"
           ];
 
         $result = $this->mapKarakaKeys($grahaKaraka, $graha_map);

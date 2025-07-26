@@ -9,30 +9,31 @@ namespace Jyotish\Graha\Object;
 use Jyotish\Graha\Graha;
 use Jyotish\Ganita\Kala;
 use Jyotish\Tattva\Maha;
+use Jyotish\Base\Data;
 use Jyotish\Tattva\Jiva\Nara\Deva;
 use Jyotish\Tattva\Jiva\Nara\Manusha;
 use Jyotish\Tattva\Ayurveda;
 
 /**
- * Class of graha Sk.
+ * Class of graha Me.
  *
  * @author Kunjara Lila das <vladya108@gmail.com>
  */
-class Sk extends GrahaObject
+class Me extends GrahaObject
 {
     /**
      * Abbreviation of the graha
      * 
      * @var string
      */
-    protected $objectKey = 'Sk';
+    protected $objectKey = 'Me';
 
     /**
      * Unicode of the Graha.
      * 
      * @var string
      */
-    protected $grahaUnicode = '2640';
+    protected $grahaUnicode = '263F';
 
     /**
      * Amsha of the Graha.
@@ -48,29 +49,30 @@ class Sk extends GrahaObject
      * @var string
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 2, Verse 5-7.
      */
-    protected $grahaAvatara = 'Parashurama';
+    protected $grahaAvatara = 'Budda';
     
     /**
      * Names of the graha.
      * 
      * @var array
-     * @see Varahamihira. Brihat Jataka. Chapter 2, Verse 3.
+     * @see Varahamihira. Brihat Jataka. Chapter 2, Verse 2.
      */
     protected $objectNames = [
-        'Bhrigu',
-        'Bhrigusuta',
-        'Sita',
-        'Asphujit',
+        'Hemna',
+        'Vit',
+        'Gna',
+        'Bodhana',
+        'Induputra',
     ];
 
     /**
-     * Devanagari title 'shukra' in transliteration.
+     * Devanagari title 'budha' in transliteration.
      * 
      * @var array
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 3, Verse 10.
      * @see Jyotish\Alphabet\Devanagari
      */
-    protected $grahaTranslit = ['sha','u','ka','virama','ra'];
+    protected $grahaTranslit = ['ba','u','dha'];
 
     /**
      * Character of the Graha.
@@ -89,7 +91,8 @@ class Sk extends GrahaObject
      * @see Varahamihira. Brihat Jataka. Chapter 2, Verse 4-5.
      */
     protected $grahaColor = [
-        Maha::COLOR_VARIEGATED,
+        Maha::COLOR_GREEN,
+        Maha::COLOR_SPRING_GREEN,
     ];
 
     /**
@@ -99,7 +102,7 @@ class Sk extends GrahaObject
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 3, Verse 18.
      * @see Varahamihira. Brihat Jataka. Chapter 2, Verse 5.
      */
-    protected $grahaDeva = Deva::DEVA_SHACHI;
+    protected $grahaDeva = Deva::DEVA_VISHNU_MAHA;
 
     /**
      * Gender of the Graha.
@@ -108,7 +111,7 @@ class Sk extends GrahaObject
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 3, Verse 19.
      * @see Varahamihira. Brihat Jataka. Chapter 2, Verse 6.
      */
-    protected $grahaGender = Manusha::GENDER_FEMALE;
+    protected $grahaGender = Manusha::GENDER_NEUTER;
 
     /**
      * Bhuta of the Graha.
@@ -117,7 +120,7 @@ class Sk extends GrahaObject
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 3, Verse 20.
      * @see Varahamihira. Brihat Jataka. Chapter 2, Verse 6.
      */
-    protected $grahaBhuta = Maha::BHUTA_JALA;
+    protected $grahaBhuta = Maha::BHUTA_PRITVI;
 
     /**
      * Varna of the Graha.
@@ -126,7 +129,7 @@ class Sk extends GrahaObject
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 3, Verse 21.
      * @see Varahamihira. Brihat Jataka. Chapter 2, Verse 7.
      */
-    protected $grahaVarna = Manusha::VARNA_BRAHMANA;
+    protected $grahaVarna = Manusha::VARNA_VAISHYA;
 
     /**
      * Guna of the Graha.
@@ -146,7 +149,7 @@ class Sk extends GrahaObject
      */
     protected $grahaDhatu = array
     (
-        Ayurveda::DHATU_SHUKRA,
+        Ayurveda::DHATU_RASA,
     );
 
     /**
@@ -155,7 +158,7 @@ class Sk extends GrahaObject
      * @var string
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 3, Verse 33.
      */
-    protected $grahaKala = Kala::KALA_PAKSHA;
+    protected $grahaKala = Kala::KALA_RITU;
 
     /**
      * Rasa of the Graha.
@@ -164,7 +167,7 @@ class Sk extends GrahaObject
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 3, Verse 34.
      * @see Varahamihira. Brihat Jataka. Chapter 2, Verse 14.
      */
-    protected $grahaRasa = Ayurveda::RASA_AMLA;
+    protected $grahaRasa = Ayurveda::RASA_MISHRA;
 
     /**
      * Ritu of the Graha.
@@ -173,7 +176,7 @@ class Sk extends GrahaObject
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 3, Verse 45-46.
      * @see Varahamihira. Brihat Jataka. Chapter 2, Verse 12.
      */
-    protected $grahaRitu = Kala::RITU_VASANTA;
+    protected $grahaRitu = Kala::RITU_SHARAD;
 
     /**
      * Graha basis.
@@ -181,7 +184,7 @@ class Sk extends GrahaObject
      * @var string
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 3, Verse 47.
      */
-    protected $grahaBasis = Maha::BASIS_MULA;
+    protected $grahaBasis = Maha::BASIS_JIVA;
 
     /**
      * Graha exaltation.
@@ -191,8 +194,8 @@ class Sk extends GrahaObject
      * @see Varahamihira. Brihat Jataka. Chapter 1, Verse 13.
      */
     protected $grahaUcha = [
-        'rashi' => 12,
-        'degree' => 27
+        'rashi' => 6,
+        'degree' => 15
     ];
 
     /**
@@ -203,8 +206,8 @@ class Sk extends GrahaObject
      * @see Varahamihira. Brihat Jataka. Chapter 1, Verse 13.
      */
     protected $grahaNeecha = [
-        'rashi' => 6,
-        'degree' => 27
+        'rashi' => 12,
+        'degree' => 15
     ];
 
     /**
@@ -215,9 +218,9 @@ class Sk extends GrahaObject
      * @see Varahamihira. Brihat Jataka. Chapter 1, Verse 14.
      */
     protected $grahaMool = [
-        'rashi' => 7,
-        'start' => 0,
-        'end' => 15
+        'rashi' => 6,
+        'start' => 15,
+        'end' => 20
     ];
 
     /**
@@ -228,13 +231,13 @@ class Sk extends GrahaObject
      */
     protected $grahaSwa = [
         'positive' => [
-            'rashi' => 7,
-            'start' => 15,
+            'rashi' => 3,
+            'start' => 0,
             'end' => 30
         ],
         'negative' => [
-            'rashi' => 2,
-            'start' => 0,
+            'rashi' => 6,
+            'start' => 20,
             'end' => 30
         ]
     ];
@@ -245,7 +248,7 @@ class Sk extends GrahaObject
      * @var string
      * @see Varahamihira. Brihat Jataka. Chapter 2, Verse 5.
      */
-    protected $grahaDisha = Maha::DISHA_AGNEYA;
+    protected $grahaDisha = Maha::DISHA_UTTARA;
 
     /**
      * Graha drishti
@@ -277,13 +280,40 @@ class Sk extends GrahaObject
     protected $grahaPrakriti = array
     (
         Ayurveda::PRAKRITI_KAPHA,
+        Ayurveda::PRAKRITI_PITTA,
         Ayurveda::PRAKRITI_VATA
     );
-    protected $grahaAgeMaturity = 25;
+    protected $grahaAgeMaturity = 32;
     protected $grahaAgePeriod = array
     (
-        'start' => 15,
-        'end' => 22
+        'start' => 5,
+        'end' => 14
     );
-    protected $grahaLongitudeSpeedAvg = ['d' => 1, 'm' => 36, 's' => 7.7];
+    protected $grahaLongitudeSpeedAvg = ['d' => 4, 'm' => 5, 's' => 32.4];
+
+    /**
+     * Set environment.
+     * 
+     * @param \Jyotish\Base\Data $Data
+     * @return \Jyotish\Graha\Object\Me
+     */
+    public function setEnvironment(Data $Data)
+    {
+        parent::setEnvironment($Data);
+
+        $this->setGrahaCharacter();
+        
+        return $this;
+    }
+
+    /**
+     * Set graha character.
+     * 
+     * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 3, Verse 11.
+     * @see Varahamihira. Brihat Jataka. Chapter 2, Verse 5.
+     */
+    protected function setGrahaCharacter()
+    {
+        $this->grahaCharacter = $this->getConjunctCharacter();
+    }
 }

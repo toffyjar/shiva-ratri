@@ -20,11 +20,11 @@ class Graha
     /**
      * Key of Sun
      */
-    const KEY_SY = 'Sy';
+    const KEY_SY = 'Su';
     /**
      * Key of Moon
      */
-    const KEY_CH = 'Ch';
+    const KEY_CH = 'Mo';
     /**
      * Key of Mars
      */
@@ -32,15 +32,15 @@ class Graha
     /**
      * Key of Mercury
      */
-    const KEY_BU = 'Bu';
+    const KEY_BU = 'Me';
     /**
      * Key of Jupiter
      */
-    const KEY_GU = 'Gu';
+    const KEY_GU = 'Ju';
     /**
      * Key of Venus
      */
-    const KEY_SK = 'Sk';
+    const KEY_SK = 'Ve';
     /**
      * Key of Saturn
      */
@@ -80,11 +80,11 @@ class Graha
      */
     const CHARACTER_MISHRA = 'mishra';
     /**
-     * Yogakaraka (functional only for Ma, Sk, Sa)
+     * Yogakaraka (functional only for Ma, Ve, Sa)
      */
     const CHARACTER_YOGAKARAKA = 'yogakaraka';
     /**
-     * Kendradhi patya dosha (functional only for Gu, Bu)
+     * Kendradhi patya dosha (functional only for Ju, Me)
      */
     const CHARACTER_KENDRADHI = 'kendradhi';
     

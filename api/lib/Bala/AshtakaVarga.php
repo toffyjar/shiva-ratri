@@ -56,7 +56,7 @@ class AshtakaVarga
      * @var array
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 66, Verse 43-45.
      */
-    protected $binduSy = [
+    protected $binduSu = [
         Graha::KEY_SY => [1, 2, 4, 7, 8, 9, 10, 11],
         Graha::KEY_CH => [3, 6, 10, 11],
         Graha::KEY_MA => [1, 2, 4, 7, 8, 9, 10, 11],
@@ -73,7 +73,7 @@ class AshtakaVarga
      * @var array
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 66, Verse 46-48.
      */
-    protected $binduCh = [
+    protected $binduMo = [
         Graha::KEY_SY => [3, 6, 7, 8, 10, 11],
         Graha::KEY_CH => [1, 3, 6, 7, 9, 10, 11],
         Graha::KEY_MA => [2, 3, 5, 6, 10, 11],
@@ -107,7 +107,7 @@ class AshtakaVarga
      * @var array
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 66, Verse 51-52.
      */
-    protected $binduBu = [
+    protected $binduMe = [
         Graha::KEY_SY => [5, 6, 9, 11, 12],
         Graha::KEY_CH => [2, 4, 6, 8, 10, 11],
         Graha::KEY_MA => [1, 2, 4, 7, 8, 9, 10, 11],
@@ -124,7 +124,7 @@ class AshtakaVarga
      * @var array
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 66, Verse 53-55.
      */
-    protected $binduGu = [
+    protected $binduJu = [
         Graha::KEY_SY => [1, 2, 3, 4, 7, 8, 9, 10, 11],
         Graha::KEY_CH => [2, 5, 7, 9, 11],
         Graha::KEY_MA => [1, 2, 4, 7, 8, 10, 11],
@@ -141,7 +141,7 @@ class AshtakaVarga
      * @var array
      * @see Maharishi Parashara. Brihat Parashara Hora Shastra. Chapter 66, Verse 56-58.
      */
-    protected $binduSk = [
+    protected $binduVe = [
         Graha::KEY_SY => [8, 11, 12],
         Graha::KEY_CH => [1, 2, 3, 4, 5, 8, 9, 11, 12],
         Graha::KEY_MA => [3, 4, 6, 9, 11, 12],

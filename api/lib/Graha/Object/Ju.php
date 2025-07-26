@@ -14,18 +14,18 @@ use Jyotish\Tattva\Jiva\Nara\Manusha;
 use Jyotish\Tattva\Ayurveda;
 
 /**
- * Class of graha Gu.
+ * Class of graha Ju.
  *
  * @author Kunjara Lila das <vladya108@gmail.com>
  */
-class Gu extends GrahaObject
+class Ju extends GrahaObject
 {
     /**
      * Abbreviation of the graha
      * 
      * @var string
      */
-    protected $objectKey = 'Gu';
+    protected $objectKey = 'Ju';
 
     /**
      * Unicode of the Graha.

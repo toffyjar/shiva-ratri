@@ -106,7 +106,7 @@ class AngaDefiner
      * 
      * @param bool $withLimit Time limit
      * @param bool $withAbhijit Take into account the Abhijit nakshatra
-     * @param string $grahaKey Graha key (default: Ch)
+     * @param string $grahaKey Graha key (default: Mo)
      * @return array
      */
     public function getNakshatra($withLimit = false, $withAbhijit = false, $grahaKey = Graha::KEY_CH)

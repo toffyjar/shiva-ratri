@@ -2,7 +2,6 @@
 
 A REST API for Jyotish (Vedic Astrology) calculations, built on top of the [kunjara/jyotish](https://github.com/kunjara/jyotish) library. Jyotish API  containerized and provides a wide range of Vedic astrology calculations, including planetary positions, Dashas, Yogas, and more.
 
-Showcase : [https://kebrya.com/chart/calculator](https://kebrya.com/chart/calculator)
 ## Features
 
 ### Chart Calculations
@@ -46,7 +45,7 @@ Showcase : [https://kebrya.com/chart/calculator](https://kebrya.com/chart/calcul
 
 ### Additional Features
 
-- **Automatic Timezone Detection**: Adjusts calculations based on the provided location.
+- ~~**Automatic Timezone Detection**: Adjusts calculations based on the provided location.~~ [DISABLED]
 - **DST Handling**: Accounts for Daylight Saving Time shifts.
 - **Ayanamsha Calculations**: Adjustments for the precession of the equinoxes.
 - **Dasha Calculations (Vimshottari)**: Planetary periods analysis.
@@ -56,20 +55,20 @@ Showcase : [https://kebrya.com/chart/calculator](https://kebrya.com/chart/calcul
 
 Most of the calculations are based on the following classical texts:
 
-- Maharishi Parashara. Brihat Parashara Hora Shastra.
-- Maharishi Jaimini. Jaimini Upadesha Sutras.
-- Varahamihira. Brihat Jataka.
-- Varahamihira. Brihat Samhita.
-- Kalyana Varma. Saravali.
-- Satyacharya. Satya Jatakam.
-- Kalidas. Uttara Kalamritam.
-- Venkatesh Sharma. Sarvarth Chintamani.
-- Mantreswara. Phaladeepika.
-- Vaidyanatha Dikshita. Jataka Parijata.
-- Srimad-Bhagavatam.
-- Bhavishya Purana.
-- Surya Siddhanta.
-- Manu-Samhita.
+- [Maharishi Parashara. Brihat Parashara Hora Shastra.](https://archive.org/details/BrihatParasharaHoraShastra)
+- [Maharishi Jaimini. Jaimini Upadesha Sutras.](https://archive.org/details/JaiminiUpadeshaSutrasWithTranslation)
+- [Varahamihira. Brihat Jataka.](https://archive.org/details/BrihatJatakaBN.Rao)
+- [Varahamihira. Brihat Samhita.](https://archive.org/details/BrihatSamhitaOfVarahamihira)
+- [Kalyana Varma. Saravali.](https://archive.org/details/SaravaliKalyanaVarma)
+- [Satyacharya. Satya Jatakam.](https://archive.org/search?query=Satya%20Jatakam)
+- [Kalidas. Uttara Kalamritam.](https://archive.org/details/UttaraKalamritaKalidasaEnglish)
+- [Venkatesh Sharma. Sarvarth Chintamani.](https://archive.org/search?query=Sarvarth%20Chintamani)
+- [Mantreswara. Phaladeepika.](https://archive.org/details/PhalaDeepikaMantrashwara)
+- [Vaidyanatha Dikshita. Jataka Parijata.](https://archive.org/details/JatakaParijataVaidyanathaDikshita)
+- [Srimad-Bhagavatam.](https://vedabase.io/en/library/sb/)
+- [Bhavishya Purana.](https://archive.org/search?query=Bhavishya%20Purana)
+- [Surya Siddhanta.](https://archive.org/details/TheSuryaSiddhantaWithTranslation)
+- [Manu-Samhita.](https://archive.org/details/ManuSmriti_201601)
 
 
 ## Installation
@@ -137,7 +136,7 @@ Calculates chart based on provided parameters.
 **Request**
 
 ```bash
-http://localhost:9393/api/calculate?latitude=37.28077&longitude=49.583057&year=2023&month=12&day=25&hour=12&min=0&sec=0&time_zone=Asia/Tehran&dst_hour=0&dst_min=0&nesting=0&varga=D1,D9&infolevel=basic,panchanga,transit
+http://localhost:9393/api/calculate?latitude=28.6139&longitude=77.209&year=2023&month=12&day=25&hour=12&min=0&sec=0&time_zone=%2B03%3A30&dst_hour=0&dst_min=0&nesting=0&varga=D1%2CD9&infolevel=basic%2Cpanchanga%2Ctransit
 ```
 
 **Query Parameters**:
@@ -152,12 +151,82 @@ http://localhost:9393/api/calculate?latitude=37.28077&longitude=49.583057&year=2
 | hour       | integer | Yes      | Hour for calculation (0-23)           | 12         |
 | min        | integer | Yes      | Minute for calculation (0-59)         | 0          |
 | sec        | integer | Yes      | Second for calculation (0-59)         | 0          |
-| time_zone  | string  | No       | Timezone for calculation             | Asia/Tehran |
+| time_zone  | string  | No       | Timezone for calculation,             | +03:30 |
 | dst_hour   | integer | No       | DST hours offset                      | 0          |
 | dst_min    | integer | No       | DST minutes offset                    | 0          |
 | nesting    | integer | No       | Nesting level for calculations        | 0          |
 | varga      | string  | No       | Varga divisions (comma-separated)     | D1,D9      |
-| infolevel  | string  | No       | Info levels to include               | basic,panchanga |
+| infolevel  | string  | No       | Info levels to include               | basic,ashtakavarga,grahabala,rashibala,yogas,panchanga,transit |
+
+- You should specify timezone, for example if you are living in Iran you can put that on +03:30.
+
+
+## Timezones:
+Please consider time_zone should pad with zero with two digit length and have sign: 
+
+Correct: "+01:00", "-01:00"
+
+Incorrect: ~~1:00~~, ~~+1:00~~, ~~1:0~~, ~~-1:0~~, ~~1~~, ~~+1~~, ~~-1~~
+
+
+| Timezone | City                     | Country        |
+| -------- | ------------------------ | ------------- |
+| -03:00   | Rio de Janeiro           | Brazil         |
+| -05:00   | New York (EST)          | USA           |
+| -04:00   | New York (EDT)          | USA           |
+| +00:00   | London (GMT)             | UK            |
+| +01:00   | London (BST)             | UK            |
+| +09:00   | Tokyo                    | Japan          |
+| +10:00   | Sydney (AEST)           | Australia      |
+| +11:00   | Sydney (AEDT)           | Australia      |
+| +04:00   | Dubai                    | UAE           |
+| +03:00   | Moscow                   | Russia        |
+| +08:00   | Beijing                  | China         |
+| +05:30   | Delhi                    | India         |
+| +01:00   | Paris (CET)              | France        |
+| +02:00   | Paris (CEST)             | France        |
+| -08:00   | Los Angeles (PST)       | USA           |
+| -07:00   | Los Angeles (PDT)       | USA           |
+| -06:00   | Chicago (CST)           | USA           |
+| -05:00   | Chicago (CDT)           | USA           |
+| +02:00   | Johannesburg             | South Africa  |
+| +02:00   | Cairo                    | Egypt         |
+| +03:00   | Istanbul                 | Turkey        |
+| +08:00   | Singapore                | Singapore     |
+| +07:00   | Bangkok                  | Thailand      |
+| +09:00   | Seoul                    | South Korea   |
+| +07:00   | Jakarta (WIB)            | Indonesia     |
+| +08:00   | Jakarta (WITA)           | Indonesia     |
+| +09:00   | Jakarta (WIT)            | Indonesia     |
+| +08:00   | Manila                   | Philippines   |
+| +01:00   | Berlin (CET)             | Germany       |
+| +02:00   | Berlin (CEST)            | Germany       |
+| +02:00   | Helsinki (EEST)          | Finland       |
+| +03:00   | Helsinki (EET)           | Finland       |
+| +02:00   | Tel Aviv (IDT)          | Israel        |
+| +03:00   | Tel Aviv (IST)          | Israel        |
+| +03:00   | Riyadh                   | Saudi Arabia  |
+| +03:00   | Doha                     | Qatar         |
+| +03:00   | Abu Dhabi                | UAE           |
+| +03:30   | Tehran                   | Iran          |
+| -03:00   | Buenos Aires             | Argentina      |
+| -05:00   | Toronto                  | Canada        |
+| +01:00   | Rome                     | Italy         |
+| +02:00   | Athens                   | Greece        |
+| +01:00   | Madrid                   | Spain         |
+| +00:00   | Lisbon                   | Portugal      |
+| +01:00   | Amsterdam                | Netherlands    |
+| +01:00   | Brussels                 | Belgium       |
+| +01:00   | Vienna                   | Austria       |
+| +01:00   | Zurich                   | Switzerland   |
+| +08:00   | Hong Kong                | Hong Kong     |
+| +08:00   | Kuala Lumpur             | Malaysia      |
+| +12:00   | Auckland                 | New Zealand   |
+| -06:00   | Mexico City              | Mexico        |
+| -03:00   | Santiago                 | Chile         |
+| +05:00   | Karachi                  | Pakistan      |
+
+
 
 **Response**:
 ```json
@@ -172,7 +241,7 @@ http://localhost:9393/api/calculate?latitude=37.28077&longitude=49.583057&year=2
       "altitude": 0
     },
     "graha": {
-      "Sy": {
+      "Su": {
         "longitude": 248.983163,
         "latitude": 0.0001772,
         "speed": 1.0183709,
@@ -196,29 +265,29 @@ http://localhost:9393/api/calculate?latitude=37.28077&longitude=49.583057&year=2
         "gocharastha": 0,
         "bhavaCharacter": "mishra",
         "tempRelation": {
-          "Ch": -1,
+          "Mo": -1,
           "Ma": 1,
-          "Bu": -1,
-          "Gu": -1,
-          "Sk": 1,
+          "Me": -1,
+          "Ju": -1,
+          "Ve": 1,
           "Sa": 1,
           "Ra": 1,
           "Ke": 1
         },
         "relation": {
-          "Ch": 0,
+          "Mo": 0,
           "Ma": 2,
-          "Bu": -1,
-          "Gu": 0,
-          "Sk": 0,
+          "Me": -1,
+          "Ju": 0,
+          "Ve": 0,
           "Sa": 0,
           "Ra": 0,
           "Ke": 0,
-          "Sy": null
+          "Su": null
         },
         "yogakaraka": false,
         "mrityu": false,
-        "pushkaraNavamsha": false,
+        "pushkaraNavamsha": 0,
         "pushkaraBhaga": false,
         "avastha": {
           "baladi": "kumara",
@@ -227,13 +296,13 @@ http://localhost:9393/api/calculate?latitude=37.28077&longitude=49.583057&year=2
             "shanta"
           ]
         },
-        "dispositor": "Gu"
+        "dispositor": "Ju"
       },
-      "Ch": {},
+      "Mo": {},
       "Ma": {},
-      "Bu": {},
-      "Gu": {},
-      "Sk": {},
+      "Me": {},
+      "Ju": {},
+      "Ve": {},
       "Sa": {},
       "Ra": {},
       "Ke": {},
@@ -304,17 +373,17 @@ http://localhost:9393/api/calculate?latitude=37.28077&longitude=49.583057&year=2
           "12": {},
         },
         "graha": {
-          "Sy": {
+          "Su": {
             "rashi": 3,
             "degree": 20.84846699999991,
             "speed": 1.0183709,
             "longitude": 80.84846699999991
           },
-          "Ch": {},
+          "Mo": {},
           "Ma": {},
-          "Bu": {},
-          "Gu": {},
-          "Sk": {},
+          "Me": {},
+          "Ju": {},
+          "Ve": {},
           "Sa": {},
           "Ra": {},
           "Ke": {},
@@ -359,7 +428,7 @@ http://localhost:9393/api/calculate?latitude=37.28077&longitude=49.583057&year=2
       "vara": {
         "anga": "vara",
         "left": 81.29129302863754,
-        "key": "Ch",
+        "key": "Mo",
         "week": "1",
         "name": "Somavar"
       },
@@ -371,7 +440,7 @@ http://localhost:9393/api/calculate?latitude=37.28077&longitude=49.583057&year=2
       }
     },
     "rising": {
-      "Sy": [
+      "Su": [
         {
           "rising": "2023-12-24 07:30:04",
           "setting": "2023-12-24 17:40:54"
@@ -389,7 +458,7 @@ http://localhost:9393/api/calculate?latitude=37.28077&longitude=49.583057&year=2
     "kala": {
       "hora": {
         "number": 7,
-        "key": "Bu",
+        "key": "Me",
         "interval": 3054.6666666666665,
         "left": 47.173723264949835,
         "type": "yama",
@@ -404,22 +473,22 @@ http://localhost:9393/api/calculate?latitude=37.28077&longitude=49.583057&year=2
       "start": "2018-01-12 22:49:09",
       "end": "2138-01-13 01:13:09",
       "periods": {
-        "Ch": {
+        "Mo": {
           "nesting": 1,
           "type": "mahadasha",
-          "key": "Ch",
+          "key": "Mo",
           "duration": 315569520,
           "start": "2018-01-12 22:49:09",
           "end": "2028-01-13 09:01:09"
         },
         "Ma": {},
         "Ra": {},
-        "Gu": {},
+        "Ju": {},
         "Sa": {},
-        "Bu": {},
+        "Me": {},
         "Ke": {},,
-        "Sk": {},,
-        "Sy": {},
+        "Ve": {},,
+        "Su": {},
       }
     }
   },
@@ -477,4 +546,4 @@ The Jyotish library used in this project is licensed under the GNU General Publi
 
 ## Contact
 
-For any inquiries, questions, or support, please contact [on Telegram](http://t.me/samanesmaeil).
+For any inquiries, questions, or support, please contact [on Telegram](http://t.me/teal33t).

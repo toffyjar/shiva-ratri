@@ -35,14 +35,20 @@ include __DIR__ . "/config.php";
 
 class Lib
 {
-    
-    public $grahas;
-    public $lagnas;
+
+    public ?array $grahas = null;
+    public ?array $lagnas = null;
 
     public function __construct(){}
 
     
-    public function calculator($params = [])
+    /**
+     * Calculate astrological chart based on provided parameters
+     * 
+     * @param array $params Chart calculation parameters
+     * @return array Calculated chart data
+     */
+    public function calculator(array $params = []): array
     {
         $latitude = $params['latitude'] ?? null;
         $longitude = $params['longitude'] ?? null;
@@ -77,17 +83,16 @@ class Lib
         );
     }
 
-    public function calculateNow($latitude = '35.708309', $longitude = '51.380730')
+    public function calculateNow($latitude = '35.708309', $longitude = '51.380730', $time_zone="+03:30")
     {
-        $tz = $this->getNearestTimezone($latitude, $longitude);
-        $now = new DateTime('now', new DateTimeZone($tz[0]));
+        // $tz = $this->getNearestTimezone($latitude, $longitude);
+        $now = new DateTime('now', new DateTimeZone($time_zone));
         $year = $now->format('Y');
         $month = $now->format('m');
         $day = $now->format('d');
         $hour = $now->format('H');
         $min = $now->format('i');
         $sec = $now->format('s');
-        $time_zone = $tz[1];
         $dst_hour = 0;
         $dst_min = 0;
         $nesting = 2;
@@ -114,62 +119,90 @@ class Lib
 
     public function getNearestTimezone($cur_lat, $cur_long, $country_code = null)
     {
-        if ($country_code == 'ir') {
-
-            $formatted = '+03:30';
-            return ['Asia/Tehran', $formatted];
+        static $locationCache = [];
+    
+        // Handle specific case for Iran
+        if (strtolower($country_code) === 'ir') {
+            return ['Asia/Tehran', '+03:30'];
         }
-        // $country_code = strtoupper($country_code);
-
-        $timezone_ids = ($country_code) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, strtoupper($country_code))
+    
+        // Fetch timezone identifiers based on country code
+        $timezone_ids = $country_code
+            ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, strtoupper($country_code))
             : DateTimeZone::listIdentifiers();
-
-        // print_r($timezone_ids);
-        if ($timezone_ids && is_array($timezone_ids) && isset($timezone_ids[0])) {
-
-            $time_zone = '';
-            $tz_distance = 0;
-
-            //only one identifier?
-            if (count($timezone_ids) == 1) {
-                $time_zone = $timezone_ids[0];
-            } else {
-
-                foreach ($timezone_ids as $timezone_id) {
+    
+        if (empty($timezone_ids)) {
+            return null;
+        }
+    
+        // Single timezone case
+        if (count($timezone_ids) === 1) {
+            $time_zone = $timezone_ids[0];
+        } else {
+            // Precompute trigonometric values for current latitude
+            $rad_cur_lat = deg2rad($cur_lat);
+            $rad_cur_long = deg2rad($cur_long);
+            $sin_cur_lat = sin($rad_cur_lat);
+            $cos_cur_lat = cos($rad_cur_lat);
+    
+            $max_distance = -INF;
+            $time_zone = null;
+    
+            foreach ($timezone_ids as $timezone_id) {
+                // Cache timezone locations to avoid repeated lookups
+                if (!isset($locationCache[$timezone_id])) {
                     $timezone = new DateTimeZone($timezone_id);
                     $location = $timezone->getLocation();
-                    $tz_lat   = $location['latitude'];
-                    $tz_long  = $location['longitude'];
-                    $tz_offset = $timezone->getOffset(new DateTime());
-
-                    $theta    = $cur_long - $tz_long;
-                    $distance = (sin(deg2rad($cur_lat)) * sin(deg2rad($tz_lat)))
-                        + (cos(deg2rad($cur_lat)) * cos(deg2rad($tz_lat)) * cos(deg2rad($theta)));
-                    $distance = acos($distance);
-                    $distance = abs(rad2deg($distance));
-                    // echo '<br />'.$timezone_id.' '.$distance; 
-
-                    if (!$time_zone || $tz_distance > $distance) {
-                        $time_zone   = $timezone_id;
-                        $tz_distance = $distance;
+                    if (!$location) {
+                        continue;
                     }
+                    $locationCache[$timezone_id] = [
+                        'lat' => $location['latitude'],
+                        'long' => $location['longitude'],
+                    ];
+                }
+    
+                $tz_lat = $locationCache[$timezone_id]['lat'];
+                $tz_long = $locationCache[$timezone_id]['long'];
+    
+                // Convert timezone coordinates to radians
+                $tz_lat_rad = deg2rad($tz_lat);
+                $tz_long_rad = deg2rad($tz_long);
+    
+                // Calculate angle components
+                $theta = $rad_cur_long - $tz_long_rad;
+                $sin_tz_lat = sin($tz_lat_rad);
+                $cos_tz_lat = cos($tz_lat_rad);
+                $cos_theta = cos($theta);
+    
+                // Compute dot product (cosine of the angle)
+                $distance = $sin_cur_lat * $sin_tz_lat + $cos_cur_lat * $cos_tz_lat * $cos_theta;
+                $distance = max(-1, min(1, $distance)); // Clamp to avoid NaN
+    
+                // Track maximum dot product (closest distance)
+                if ($distance > $max_distance) {
+                    $max_distance = $distance;
+                    $time_zone = $timezone_id;
                 }
             }
-            $tz = new DateTimeZone($time_zone);
-            $date = new DateTime('now', $tz);
-
-            // create a new date offset by the timezone offset
-            // gets the interval as hours & minutes
-            $offset = $tz->getOffset($date) . ' seconds';
-            $dateOffset = clone $date;
-            $dateOffset->sub(DateInterval::createFromDateString($offset));
-
-            $interval = $dateOffset->diff($date);
-            $formatted = $interval->format('%R%H:%I');
-
-
-            return [$time_zone, $formatted];
         }
+    
+        if (!$time_zone) {
+            return null;
+        }
+    
+        // Calculate formatted offset
+        $tz = new DateTimeZone($time_zone);
+        $date = new DateTime('now', $tz);
+        $offset_seconds = $tz->getOffset($date);
+    
+        $sign = $offset_seconds >= 0 ? '+' : '-';
+        $offset_seconds = abs($offset_seconds);
+        $hours = (int) ($offset_seconds / 3600);
+        $minutes = (int) (($offset_seconds % 3600) / 60);
+        $formatted = sprintf('%s%02d:%02d', $sign, $hours, $minutes);
+    
+        return [$time_zone, $formatted];
     }
 
     /*
@@ -185,7 +218,7 @@ class Lib
         $hour,
         $min,
         $sec,
-        $time_zone = 'Asia/Tehran',
+        $time_zone = '+03:30',
         $dst_hour = 0,
         $dst_min = 0,
         $vargas = [
@@ -216,9 +249,12 @@ class Lib
             'altitude' => 0
         ]);
 
-        $tz = $this->getNearestTimezone($latitude, $longitude);
+        # TODO: getNearestTimezone disabled, should rewrite with an accurate method in future
+        # From now user should add $timezone from -12:00 to +12:00
+        // $tz = $this->getNearestTimezone($latitude, $longitude);
+
         # format datetime for DateTime Object
-        $datetime = sprintf("%s-%s-%s %s:%s:%s%s", $year, $month, $day, $hour, $min, $sec, $tz[1]);
+        $datetime = sprintf("%s-%s-%s %s:%s:%s%s", $year, $month, $day, $hour, $min, $sec, $time_zone);
         $date = new DateTime($datetime);
 
         # perform DST offest
@@ -329,9 +365,22 @@ class Lib
             $yogas = $data->getData(['yoga']);
             $vargaData['yogas'] = $yogas;
         }
+        $graha = $vargaData['graha'];
+        $bhava = $vargaData['bhava'];
 
+        # merge garaha and bhava
+        foreach ($bhava as $bhava_key => $bhava_value) {
+            $rashi = $bhava_value['rashi'];
+            $bhava_grahas = [];
+
+            foreach ($graha as $graha_key => $graha_value) {
+                if ($graha_value['rashi'] == $rashi) {
+                    $bhava_grahas[$graha_key] = $graha_value;
+                }
+            }
+
+            $vargaData['houses'][$bhava_key]['graha'] = $bhava_grahas;
+        }
         return $vargaData;
     }
-
-
 }

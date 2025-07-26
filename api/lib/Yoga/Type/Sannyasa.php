@@ -61,8 +61,8 @@ class Sannyasa extends YogaBase
             )
         );
         
-        $Ch = Graha::getInstance(Graha::KEY_CH)->setEnvironment($this->Data);
-        $this->temp['chIsAspected'] = $Ch->isAspectedByGraha();
+        $Mo = Graha::getInstance(Graha::KEY_CH)->setEnvironment($this->Data);
+        $this->temp['chIsAspected'] = $Mo->isAspectedByGraha();
         
         return $this;
     }
@@ -113,8 +113,8 @@ class Sannyasa extends YogaBase
             return false;
         }
         
-        $Gu = Graha::getInstance(Graha::KEY_GU)->setEnvironment($this->Data);
-        $guBhava = $Gu->getBhava();
+        $Ju = Graha::getInstance(Graha::KEY_GU)->setEnvironment($this->Data);
+        $guBhava = $Ju->getBhava();
         $isGuInKendraTrikona = in_array($guBhava, $this->temp['kendraAndTrikona']) ? true : false;
 
         $hasYoga = false;

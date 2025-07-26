@@ -499,7 +499,7 @@ trait GrahaEnvironment
                     $navamsha = Math::numberInCycle(1, $number);
                     return $navamsha;
                 } else {
-                    return false;
+                    return 0;
                 }
         }
     }

@@ -9,16 +9,16 @@ namespace Jyotish\Panchanga\Vara\Object;
 use Jyotish\Graha\Graha;
 
 /**
- * Somavar class.
+ * Guruvar class.
  *
  * @author Kunjara Lila das <vladya108@gmail.com>
  */
-class Ch extends VaraObject
+class Ju extends VaraObject
 {
     /**
      * Vara key.
      * 
      * @var string
      */
-    protected $varaKey = Graha::KEY_CH;
+    protected $varaKey = Graha::KEY_GU;
 }

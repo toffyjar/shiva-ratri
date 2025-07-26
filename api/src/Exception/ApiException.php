@@ -6,7 +6,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ApiException extends HttpException
 {
-    private $details;
+    private array $details;
 
     public function __construct(int $statusCode, string $message = '', array $details = [], \Throwable $previous = null, array $headers = [])
     {

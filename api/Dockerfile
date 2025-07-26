@@ -115,7 +115,6 @@ RUN php bin/console assets:install --symlink
 # Clear Symfony cache
 RUN php bin/console cache:clear
 
-
 # Expose port
 EXPOSE 9393
 
