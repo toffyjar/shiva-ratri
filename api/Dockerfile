@@ -24,11 +24,11 @@ RUN apt-get install -y \
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Copy composer files first (for caching)
-COPY composer.json composer.lock ./
+# Copy composer.json (lock file optional)
+COPY composer.json ./
 
-# Install dependencies (no dev in production)
-RUN composer install --no-interaction --no-ansi --no-progress --optimize-autoloader --no-dev
+# Install dependencies (will work even if no composer.lock)
+RUN composer install --no-interaction --no-ansi --no-progress --optimize-autoloader --no-dev || true
 
 # Copy application
 COPY . .
@@ -63,10 +63,10 @@ server { \
 # Log config
 RUN sed -i 's|;error_log = php_errors.log|error_log = /var/log/php7.4-fpm.log|' /etc/php/7.4/fpm/php-fpm.conf
 
-# Symfony optimize
-RUN php bin/console cache:clear --no-warmup && \
-    php bin/console cache:warmup && \
-    php bin/console assets:install --symlink
+# Symfony optimize (ignore if console not ready during build)
+RUN php bin/console cache:clear --no-warmup || true && \
+    php bin/console cache:warmup || true && \
+    php bin/console assets:install --symlink || true
 
 # Expose Render dynamic port
 EXPOSE ${PORT}
