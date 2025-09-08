@@ -1,22 +1,19 @@
-# Use Ubuntu 22.04 as base
+# Base image
 FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV COMPOSER_ALLOW_SUPERUSER=1
-
 WORKDIR /var/www/api
 
-# Install system dependencies
+# System dependencies
 RUN apt-get update -y && \
     apt-get install -y \
     git unzip libzip-dev libicu-dev libonig-dev libpng-dev \
     curl software-properties-common apt-transport-https ca-certificates gnupg g++ make nginx
 
-# Add PHP repository
-RUN add-apt-repository ppa:ondrej/php -y && apt-get update -y
-
-# Install PHP + extensions
-RUN apt-get install -y \
+# PHP repo + install PHP 7.4 + extensions
+RUN add-apt-repository ppa:ondrej/php -y && apt-get update -y && \
+    apt-get install -y \
     php7.4 php7.4-fpm php7.4-cli php7.4-common \
     php7.4-mysql php7.4-xml php7.4-mbstring php7.4-curl php7.4-zip \
     php7.4-gd php7.4-intl php7.4-bcmath php7.4-soap php7.4-opcache
@@ -24,21 +21,20 @@ RUN apt-get install -y \
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Copy composer.json (lock file optional)
+# Copy composer.json (lock optional)
 COPY composer.json ./
 
-# Install dependencies (will work even if no composer.lock)
+# Install dependencies (no dev)
 RUN composer install --no-interaction --no-ansi --no-progress --optimize-autoloader --no-dev || true
 
 # Copy application
 COPY . .
 
-# Prepare Symfony cache/logs
+# Prepare var directories
 RUN mkdir -p var/cache var/log && \
-    chown -R www-data:www-data var && \
-    chmod -R 775 var
+    chown -R www-data:www-data var && chmod -R 775 var
 
-# Configure Nginx to listen on Render's $PORT
+# Configure Nginx
 RUN echo ' \
 server { \
     listen ${PORT}; \
@@ -60,15 +56,13 @@ server { \
     } \
 }' > /etc/nginx/sites-available/default
 
-# Log config
+# PHP-FPM logging
 RUN sed -i 's|;error_log = php_errors.log|error_log = /var/log/php7.4-fpm.log|' /etc/php/7.4/fpm/php-fpm.conf
 
-# Symfony optimize (ignore if console not ready during build)
+# Clear & warm Symfony cache (ignore errors during build)
 RUN php bin/console cache:clear --no-warmup || true && \
-    php bin/console cache:warmup || true && \
-    php bin/console assets:install --symlink || true
+    php bin/console cache:warmup || true
 
-# Expose Render dynamic port
 EXPOSE ${PORT}
 
 # Start PHP-FPM + Nginx
