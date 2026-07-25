@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,13 +8,11 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 const timeAPIBaseURL = "https://timeapi.io/api"
-const timezoneCacheTTL = 24 * time.Hour
 
 type timeAPITimezoneResponse struct {
 	TimeZone         string `json:"timeZone"`
@@ -73,16 +70,6 @@ func (h *Handler) SearchTimezone(c *gin.Context) {
 	params.Set("latitude", lat)
 	params.Set("longitude", lon)
 
-	cacheKey := "timezone:search:" + params.Encode()
-
-	ctx := c.Request.Context()
-	if cached, err := h.redis.Get(ctx, cacheKey).Bytes(); err == nil {
-		c.Header("Content-Type", "application/json")
-		c.Header("X-Cache", "HIT")
-		c.Data(http.StatusOK, "application/json", cached)
-		return
-	}
-
 	targetURL := timeAPIBaseURL + "/TimeZone/coordinate?" + params.Encode()
 
 	req, err := http.NewRequest(http.MethodGet, targetURL, nil)
@@ -118,7 +105,6 @@ func (h *Handler) SearchTimezone(c *gin.Context) {
 
 	if resp.StatusCode != http.StatusOK {
 		c.Header("Content-Type", "application/json")
-		c.Header("X-Cache", "MISS")
 		c.Data(resp.StatusCode, "application/json", body)
 		return
 	}
@@ -161,11 +147,6 @@ func (h *Handler) SearchTimezone(c *gin.Context) {
 		return
 	}
 
-	cacheCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-	h.redis.Set(cacheCtx, cacheKey, respBody, timezoneCacheTTL)
-
 	c.Header("Content-Type", "application/json")
-	c.Header("X-Cache", "MISS")
 	c.Data(http.StatusOK, "application/json", respBody)
 }

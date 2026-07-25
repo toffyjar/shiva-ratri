@@ -20,7 +20,7 @@ services:
 
   app_backend:
     build:
-      context: ./app-backend
+      context: ./mobile-app-backend
       dockerfile: Dockerfile
     container_name: app_backend
     restart: unless-stopped
@@ -31,11 +31,8 @@ services:
     depends_on:
       mongodb:
         condition: service_healthy
-      redis:
-        condition: service_healthy
     environment:
       MONGODB_URI: mongodb://mongodb:27017/jyotish
-      REDIS_URL: redis://redis:6379
 
   mongodb:
     image: mongo:7
@@ -52,20 +49,19 @@ services:
       retries: 5
       start_period: 10s
 
-  redis:
-    image: redis:7-alpine
-    container_name: redis
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
     restart: unless-stopped
     ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 5s
+      - "127.0.0.1:${MONGO_EXPRESS_PORT:-8091}:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME:-webuser}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:-webpassword}
+    depends_on:
+      mongodb:
+        condition: service_healthy
 
   jyotish_frontend:
     build:
@@ -88,4 +84,3 @@ services:
 volumes:
   app_backend_data:
   mongodb_data:
-  redis_data:

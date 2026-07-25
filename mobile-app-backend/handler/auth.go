@@ -7,16 +7,14 @@ import (
 	"mobile-app-backend/store"
 
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
 )
 
 type Handler struct {
 	store *store.MongoStore
-	redis *redis.Client
 }
 
-func NewHandler(s *store.MongoStore, redisClient *redis.Client) *Handler {
-	return &Handler{store: s, redis: redisClient}
+func NewHandler(s *store.MongoStore) *Handler {
+	return &Handler{store: s}
 }
 
 // Register godoc

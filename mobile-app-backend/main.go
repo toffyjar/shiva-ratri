@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -11,7 +10,6 @@ import (
 	"mobile-app-backend/store"
 
 	"github.com/gin-gonic/gin"
-	"github.com/redis/go-redis/v9"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -36,24 +34,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	redisURL := os.Getenv("REDIS_URL")
-	if redisURL == "" {
-		redisURL = "redis://localhost:6379"
-	}
-
-	redisOpts, err := redis.ParseURL(redisURL)
-	if err != nil {
-		fmt.Printf("Failed to parse REDIS_URL: %v\n", err)
-		os.Exit(1)
-	}
-
-	redisClient := redis.NewClient(redisOpts)
-	if err := redisClient.Ping(context.Background()).Err(); err != nil {
-		fmt.Printf("Failed to connect to Redis: %v\n", err)
-		os.Exit(1)
-	}
-
-	h := handler.NewHandler(mongoStore, redisClient)
+	h := handler.NewHandler(mongoStore)
 
 	router := gin.Default()
 
@@ -70,8 +51,10 @@ func main() {
 	protected.GET("/list-kundali", h.ListKundali)
 	protected.GET("/all-kundali", h.ListAllKundali)
 
-	router.GET("/api/v1/geolocation/search", h.SearchPlaces)
-	router.GET("/api/v1/timezone/search", h.SearchTimezone)
+	proxyRoutes := v1.Group("")
+	proxyRoutes.Use(middleware.LogResponse())
+	proxyRoutes.GET("geolocation/search", h.SearchPlaces)
+	proxyRoutes.GET("timezone/search", h.SearchTimezone)
 
 	router.GET("/swagger/*any", ginSwagger.CustomWrapHandler(&ginSwagger.Config{
 		URL: "/swagger/doc.json",

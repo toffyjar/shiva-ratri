@@ -1,19 +1,16 @@
 package handler
 
 import (
-	"context"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 const nominatimBaseURL = "https://nominatim.openstreetmap.org"
-const placesCacheTTL = 24 * time.Hour
 
 type nominatimPlace struct {
 	PlaceID     int64  `json:"place_id"`
@@ -63,16 +60,6 @@ func (h *Handler) SearchPlaces(c *gin.Context) {
 		params.Set("limit", limit)
 	}
 
-	cacheKey := "places:search:" + params.Encode()
-
-	ctx := c.Request.Context()
-	if cached, err := h.redis.Get(ctx, cacheKey).Bytes(); err == nil {
-		c.Header("Content-Type", "application/json")
-		c.Header("X-Cache", "HIT")
-		c.Data(http.StatusOK, "application/json", cached)
-		return
-	}
-
 	targetURL := nominatimBaseURL + "/search?" + params.Encode()
 
 	req, err := http.NewRequest(http.MethodGet, targetURL, nil)
@@ -109,7 +96,6 @@ func (h *Handler) SearchPlaces(c *gin.Context) {
 
 	if resp.StatusCode != http.StatusOK {
 		c.Header("Content-Type", "application/json")
-		c.Header("X-Cache", "MISS")
 		c.Data(resp.StatusCode, "application/json", body)
 		return
 	}
@@ -145,11 +131,6 @@ func (h *Handler) SearchPlaces(c *gin.Context) {
 		return
 	}
 
-	cacheCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-	h.redis.Set(cacheCtx, cacheKey, respBody, placesCacheTTL)
-
 	c.Header("Content-Type", "application/json")
-	c.Header("X-Cache", "MISS")
 	c.Data(http.StatusOK, "application/json", respBody)
 }

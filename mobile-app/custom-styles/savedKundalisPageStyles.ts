@@ -5,8 +5,8 @@ import {
 
 export const savedKundalisPageStyles = StyleSheet.create({
     container: {
-        flex: 1,
-        alignItems: 'center',
+        // flex: 1,
+        // alignItems: 'left',
         justifyContent: 'center',
     },
     text: {

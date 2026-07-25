@@ -12,6 +12,7 @@ import (
 	"mobile-app-backend/model"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -48,10 +49,6 @@ func NewMongoStore(uri string) (*MongoStore, error) {
 	}
 
 	return s, nil
-}
-
-func (s *MongoStore) nextUserID() (uint, error) {
-	return s.nextID("users")
 }
 
 func (s *MongoStore) nextKundaliID() (uint, error) {
@@ -100,13 +97,7 @@ func (s *MongoStore) CreateUser(u *model.User) *model.User {
 		return nil
 	}
 
-	id, err := s.nextUserID()
-	if err != nil {
-		fmt.Printf("failed to generate user id: %v\n", err)
-		return nil
-	}
-
-	u.ID = id
+	u.ID = uuid.New()
 	u.CreatedAt = time.Now()
 
 	_, err = s.usersColl.InsertOne(ctx, u)
@@ -118,7 +109,7 @@ func (s *MongoStore) CreateUser(u *model.User) *model.User {
 	return u
 }
 
-func (s *MongoStore) FindUserByID(id uint) *model.User {
+func (s *MongoStore) FindUserByID(id uuid.UUID) *model.User {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -142,7 +133,7 @@ func (s *MongoStore) FindUserByEmail(email string) *model.User {
 	return &user
 }
 
-func (s *MongoStore) CreateKundaliForUser(userID uint, k *model.KundaliSave) *model.KundaliSave {
+func (s *MongoStore) CreateKundaliForUser(userID uuid.UUID, k *model.KundaliSave) *model.KundaliSave {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -165,21 +156,6 @@ func (s *MongoStore) CreateKundaliForUser(userID uint, k *model.KundaliSave) *mo
 	return k
 }
 
-func (s *MongoStore) SaveKundaliData(id uint, data []byte) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err := s.kundaliColl.UpdateOne(
-		ctx,
-		bson.M{"_id": id},
-		bson.M{"$set": bson.M{"data": string(data)}},
-	)
-	return err
-}
-
-func (s *MongoStore) UpdateKundaliFile(id uint, fileName string) {
-}
-
 func (s *MongoStore) LoadKundaliData(id uint) (*model.KundaliSave, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -192,7 +168,7 @@ func (s *MongoStore) LoadKundaliData(id uint) (*model.KundaliSave, error) {
 	return &result, nil
 }
 
-func (s *MongoStore) FindKundaliByUserID(userID uint) []model.KundaliSave {
+func (s *MongoStore) FindKundaliByUserID(userID uuid.UUID) []model.KundaliSave {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -260,9 +236,9 @@ func jwtSecret() []byte {
 	return []byte(secret)
 }
 
-func SignToken(userID uint, email string) (string, error) {
+func SignToken(userID uuid.UUID, email string) (string, error) {
 	claims := jwt.MapClaims{
-		"user_id": userID,
+		"user_id": userID.String(),
 		"email":   email,
 		"exp":     time.Now().Add(24 * time.Hour).Unix(),
 		"iat":     time.Now().Unix(),
@@ -272,7 +248,7 @@ func SignToken(userID uint, email string) (string, error) {
 	return token.SignedString(jwtSecret())
 }
 
-func VerifyToken(tokenString string) (uint, error) {
+func VerifyToken(tokenString string) (uuid.UUID, error) {
 	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
@@ -281,18 +257,23 @@ func VerifyToken(tokenString string) (uint, error) {
 	})
 
 	if err != nil || !token.Valid {
-		return 0, fmt.Errorf("invalid token")
+		return uuid.Nil, fmt.Errorf("invalid token")
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return 0, fmt.Errorf("invalid token claims")
+		return uuid.Nil, fmt.Errorf("invalid token claims")
 	}
 
-	userIDFloat, ok := claims["user_id"].(float64)
+	userIDStr, ok := claims["user_id"].(string)
 	if !ok {
-		return 0, fmt.Errorf("invalid user_id in token")
+		return uuid.Nil, fmt.Errorf("invalid user_id in token")
 	}
 
-	return uint(userIDFloat), nil
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("invalid user_id in token")
+	}
+
+	return userID, nil
 }

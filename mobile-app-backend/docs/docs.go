@@ -53,7 +53,7 @@ const docTemplate = `{
         },
         "/geolocation/search": {
             "get": {
-                "description": "Proxy to OpenStreetMap Nominatim search API",
+                "description": "Proxy to OpenStreetMap Nominatim search API, normalized to {value, label, latitude, longitude}",
                 "consumes": [
                     "application/json"
                 ],
@@ -97,8 +97,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "object",
-                                "additionalProperties": true
+                                "$ref": "#/definitions/handler.PlaceOption"
                             }
                         }
                     },
@@ -285,7 +284,7 @@ const docTemplate = `{
                 "summary": "Save kundali chart",
                 "parameters": [
                     {
-                        "description": "Kundali chart data",
+                        "description": "Kundali birth details",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -298,8 +297,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/model.KundaliSave"
                         }
                     },
                     "400": {
@@ -325,9 +323,90 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/timezone/search": {
+            "get": {
+                "description": "Proxy to timeapi.io TimeZone/coordinate API, normalized to {timeZone, utcOffset}",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "geolocation"
+                ],
+                "summary": "Look up timezone by coordinates",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Latitude",
+                        "name": "latitude",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Longitude",
+                        "name": "longitude",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.TimezoneOption"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "handler.PlaceOption": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "string"
+                },
+                "longitude": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.TimezoneOption": {
+            "type": "object",
+            "properties": {
+                "timeZone": {
+                    "type": "string"
+                },
+                "utcOffset": {
+                    "type": "string"
+                }
+            }
+        },
         "model.AuthResponse": {
             "type": "object",
             "properties": {
@@ -335,278 +414,108 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "token": {
                     "type": "string"
                 }
             }
         },
-        "model.AvasthaData": {
+        "model.KundaliSave": {
             "type": "object",
             "properties": {
-                "baladi": {
+                "birthPlace": {
                     "type": "string"
                 },
-                "deeptadi": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "jagradi": {
+                "created_at": {
                     "type": "string"
-                }
-            }
-        },
-        "model.BhavaData": {
-            "type": "object",
-            "properties": {
-                "graha": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/model.GrahaEntry"
-                    }
-                }
-            }
-        },
-        "model.ChartData": {
-            "type": "object",
-            "properties": {
-                "bhava": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/model.BhavaData"
-                    }
                 },
-                "dasha": {
-                    "$ref": "#/definitions/model.DashaData"
+                "day": {
+                    "type": "string"
                 },
-                "graha": {
-                    "$ref": "#/definitions/model.GrahaData"
+                "hour": {
+                    "type": "string"
                 },
-                "kala": {
-                    "$ref": "#/definitions/model.KalaData"
-                },
-                "lagna": {
-                    "$ref": "#/definitions/model.LagnaData"
-                },
-                "panchanga": {
-                    "$ref": "#/definitions/model.PanchangaData"
-                },
-                "rising": {
-                    "$ref": "#/definitions/model.RisingData"
-                },
-                "user": {
-                    "$ref": "#/definitions/model.UserData"
-                }
-            }
-        },
-        "model.DashaData": {
-            "type": "object",
-            "properties": {
-                "duration": {
+                "id": {
                     "type": "integer"
                 },
-                "end": {
+                "isFemale": {
                     "type": "string"
-                },
-                "key": {
-                    "type": "string"
-                },
-                "nesting": {
-                    "type": "integer"
-                },
-                "periods": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "$ref": "#/definitions/model.DashaPeriod"
-                    }
-                },
-                "start": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.DashaPeriod": {
-            "type": "object",
-            "properties": {
-                "duration": {
-                    "type": "integer"
-                },
-                "end": {
-                    "type": "string"
-                },
-                "key": {
-                    "type": "string"
-                },
-                "nesting": {
-                    "type": "integer"
-                },
-                "start": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.GrahaData": {
-            "type": "object",
-            "additionalProperties": {
-                "$ref": "#/definitions/model.GrahaEntry"
-            }
-        },
-        "model.GrahaEntry": {
-            "type": "object",
-            "properties": {
-                "ascension": {
-                    "type": "number"
-                },
-                "astangata": {
-                    "type": "boolean"
-                },
-                "avastha": {
-                    "$ref": "#/definitions/model.AvasthaData"
-                },
-                "bhavaCharacter": {
-                    "type": "string"
-                },
-                "declination": {
-                    "type": "number"
-                },
-                "degree": {
-                    "type": "number"
-                },
-                "dispositor": {
-                    "type": "string"
-                },
-                "gocharastha": {
-                    "type": "integer"
                 },
                 "latitude": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "longitude": {
-                    "type": "number"
-                },
-                "mrityu": {
-                    "type": "boolean"
-                },
-                "nakshatra": {
-                    "$ref": "#/definitions/model.NakshatraData"
-                },
-                "pushkaraBhaga": {
-                    "type": "number"
-                },
-                "pushkaraNavamsha": {
-                    "type": "integer"
-                },
-                "rashi": {
-                    "type": "integer"
-                },
-                "rashiAvastha": {
                     "type": "string"
                 },
-                "relation": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
-                    }
-                },
-                "speed": {
-                    "type": "number"
-                },
-                "tempRelation": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
-                    }
-                },
-                "vargottama": {
-                    "type": "boolean"
-                },
-                "yogakaraka": {
-                    "type": "boolean"
-                },
-                "yuddha": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "model.HoraData": {
-            "type": "object",
-            "properties": {
-                "end": {
+                "minute": {
                     "type": "string"
                 },
-                "interval": {
-                    "type": "number"
-                },
-                "key": {
+                "month": {
                     "type": "string"
-                },
-                "left": {
-                    "type": "number"
-                },
-                "number": {
-                    "type": "integer"
-                },
-                "type": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.KalaData": {
-            "type": "object",
-            "properties": {
-                "hora": {
-                    "$ref": "#/definitions/model.HoraData"
-                }
-            }
-        },
-        "model.KaranaData": {
-            "type": "object",
-            "properties": {
-                "anga": {
-                    "type": "string"
-                },
-                "key": {
-                    "type": "integer"
-                },
-                "left": {
-                    "type": "number"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "timeZone": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "year": {
                     "type": "string"
                 }
             }
         },
         "model.Kundli": {
             "type": "object",
+            "required": [
+                "birthPlace",
+                "day",
+                "hour",
+                "isFemale",
+                "latitude",
+                "longitude",
+                "minute",
+                "month",
+                "name",
+                "timeZone",
+                "year"
+            ],
             "properties": {
-                "chart": {
-                    "$ref": "#/definitions/model.ChartData"
-                },
-                "created_at": {
+                "birthPlace": {
                     "type": "string"
                 },
-                "duration_of_response": {
-                    "type": "number"
-                }
-            }
-        },
-        "model.LagnaData": {
-            "type": "object",
-            "properties": {
-                "Lg": {
-                    "$ref": "#/definitions/model.GrahaEntry"
+                "day": {
+                    "type": "string"
                 },
-                "MLg": {
-                    "$ref": "#/definitions/model.GrahaEntry"
+                "hour": {
+                    "type": "string"
+                },
+                "isFemale": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "string"
+                },
+                "longitude": {
+                    "type": "string"
+                },
+                "minute": {
+                    "type": "string"
+                },
+                "month": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "timeZone": {
+                    "type": "string"
+                },
+                "year": {
+                    "type": "string"
                 }
             }
         },
@@ -625,52 +534,6 @@ const docTemplate = `{
                 }
             }
         },
-        "model.NakshatraData": {
-            "type": "object",
-            "properties": {
-                "abhijit": {
-                    "type": "boolean"
-                },
-                "anga": {
-                    "type": "string"
-                },
-                "key": {
-                    "type": "integer"
-                },
-                "left": {
-                    "type": "number"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "pada": {
-                    "type": "integer"
-                },
-                "ratio": {
-                    "type": "integer"
-                }
-            }
-        },
-        "model.PanchangaData": {
-            "type": "object",
-            "properties": {
-                "karana": {
-                    "$ref": "#/definitions/model.KaranaData"
-                },
-                "nakshatra": {
-                    "$ref": "#/definitions/model.NakshatraData"
-                },
-                "tithi": {
-                    "$ref": "#/definitions/model.TithiData"
-                },
-                "vara": {
-                    "$ref": "#/definitions/model.VaraData"
-                },
-                "yoga": {
-                    "$ref": "#/definitions/model.YogaData"
-                }
-            }
-        },
         "model.RegisterRequest": {
             "type": "object",
             "required": [
@@ -684,103 +547,6 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "minLength": 6
-                }
-            }
-        },
-        "model.RisingData": {
-            "type": "object",
-            "additionalProperties": {
-                "type": "array",
-                "items": {
-                    "$ref": "#/definitions/model.RisingEntry"
-                }
-            }
-        },
-        "model.RisingEntry": {
-            "type": "object",
-            "properties": {
-                "rising": {
-                    "type": "string"
-                },
-                "setting": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.TithiData": {
-            "type": "object",
-            "properties": {
-                "anga": {
-                    "type": "string"
-                },
-                "key": {
-                    "type": "integer"
-                },
-                "left": {
-                    "type": "number"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "paksha": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.UserData": {
-            "type": "object",
-            "properties": {
-                "altitude": {
-                    "type": "number"
-                },
-                "datetime": {
-                    "type": "string"
-                },
-                "latitude": {
-                    "type": "number"
-                },
-                "longitude": {
-                    "type": "number"
-                },
-                "timezone": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.VaraData": {
-            "type": "object",
-            "properties": {
-                "anga": {
-                    "type": "string"
-                },
-                "key": {
-                    "type": "string"
-                },
-                "left": {
-                    "type": "number"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "week": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.YogaData": {
-            "type": "object",
-            "properties": {
-                "anga": {
-                    "type": "string"
-                },
-                "key": {
-                    "type": "integer"
-                },
-                "left": {
-                    "type": "number"
-                },
-                "name": {
-                    "type": "string"
                 }
             }
         }

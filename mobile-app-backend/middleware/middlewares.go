@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"bytes"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -8,6 +10,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+type responseBodyWriter struct {
+	gin.ResponseWriter
+	body *bytes.Buffer
+}
+
+// Write intercepts the response data and writes it to the buffer
+func (r responseBodyWriter) Write(b []byte) (int, error) {
+	r.body.Write(b)
+	return r.ResponseWriter.Write(b)
+}
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -49,5 +62,24 @@ func AuthMiddleware() gin.HandlerFunc {
 		c.Set("user_id", userID)
 		c.Set("token", tokenString)
 		c.Next()
+	}
+}
+
+func LogResponse() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 1. Initialize custom writer
+		w := &responseBodyWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
+		c.Writer = w
+
+		// 2. Process the request handler
+		c.Next()
+
+		reqMethod := c.Request.Method
+
+		// 3. Handle the captured response
+		statusCode := c.Writer.Status()
+		responseBody := w.body.String()
+		fmt.Printf("\n\n[Respone] Status: %d | Body: %s\n", statusCode, responseBody)
+		fmt.Printf("[Request] Method: %s | Path: %s\n\n", reqMethod, c.Request.RequestURI)
 	}
 }

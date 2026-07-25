@@ -1,13 +1,12 @@
 package handler
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"mobile-app-backend/model"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // SaveKundali godoc
@@ -17,8 +16,8 @@ import (
 // @Accept       json
 // @Produce      json
 // @Security     BearerAuth
-// @Param        request  body      model.Kundli  true  "Kundali chart data"
-// @Success      201      {object}  map[string]interface{}
+// @Param        request  body      model.Kundli  true  "Kundali birth details"
+// @Success      201      {object}  model.KundaliSave
 // @Failure      400      {object}  map[string]interface{}
 // @Failure      401      {object}  map[string]interface{}
 // @Failure      500      {object}  map[string]interface{}
@@ -33,7 +32,7 @@ func (h *Handler) SaveKundali(c *gin.Context) {
 		return
 	}
 
-	userID := rawID.(uint)
+	userID := rawID.(uuid.UUID)
 
 	var kundali model.Kundli
 	if err := c.ShouldBindJSON(&kundali); err != nil {
@@ -44,16 +43,19 @@ func (h *Handler) SaveKundali(c *gin.Context) {
 		return
 	}
 
-	kundaliBytes, err := json.Marshal(kundali)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "serialization_error",
-			"message": "Failed to serialize kundli",
-		})
-		return
+	meta := &model.KundaliSave{
+		Name:       kundali.Name,
+		Day:        kundali.Day,
+		Month:      kundali.Month,
+		Year:       kundali.Year,
+		Hour:       kundali.Hour,
+		Minute:     kundali.Minute,
+		BirthPlace: kundali.BirthPlace,
+		Latitude:   kundali.Latitude,
+		Longitude:  kundali.Longitude,
+		TimeZone:   kundali.TimeZone,
+		IsFemale:   kundali.IsFemale,
 	}
-
-	meta := &model.KundaliSave{}
 
 	saved := h.store.CreateKundaliForUser(userID, meta)
 	if saved == nil {
@@ -64,23 +66,7 @@ func (h *Handler) SaveKundali(c *gin.Context) {
 		return
 	}
 
-	fileName := fmt.Sprintf("%d.json", saved.ID)
-	if err := h.store.SaveKundaliData(saved.ID, kundaliBytes); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "file_write_error",
-			"message": "Failed to save kundli file",
-		})
-		return
-	}
-
-	h.store.UpdateKundaliFile(saved.ID, fileName)
-
-	c.JSON(http.StatusCreated, gin.H{
-		"id":        saved.ID,
-		"user_id":   saved.UserID,
-		"file":      fileName,
-		"created_at": saved.CreatedAt,
-	})
+	c.JSON(http.StatusCreated, saved)
 }
 
 // ListKundali godoc
@@ -95,7 +81,7 @@ func (h *Handler) SaveKundali(c *gin.Context) {
 // @Router       /list-kundali [get]
 func (h *Handler) ListKundali(c *gin.Context) {
 	rawID, _ := c.Get("user_id")
-	userID := rawID.(uint)
+	userID := rawID.(uuid.UUID)
 
 	records := h.store.FindKundaliByUserID(userID)
 	c.JSON(http.StatusOK, gin.H{
