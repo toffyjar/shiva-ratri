@@ -11,6 +11,38 @@ class HttpService {
     this.baseUrl = baseUrl;
   }
 
+  async getSvg(
+    path: string,
+    params?: Record<string, string>,
+    headers?: Record<string, string>
+  ): Promise<HttpResponse<string>> {
+    let url = `${this.baseUrl}${path}`;
+    if (params) {
+      const searchParams = new URLSearchParams(params);
+      url += `?${searchParams.toString()}`;
+    }
+    
+    
+    console.log(`Making GET SVG request to: ${url}`);
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'image/svg+xml',
+        ...headers,
+      },
+    });
+
+    const data = await response.text();
+
+    return {
+      ok: response.ok,
+      status: response.status,
+      data,
+    };
+  }
+  
+  
   async get<T>(
     path: string,
     params?: Record<string, string>,
