@@ -20,7 +20,7 @@ services:
 
   app_backend:
     build:
-      context: ./app-backend
+      context: ./mobile-app-backend
       dockerfile: Dockerfile
     container_name: app_backend
     restart: unless-stopped
@@ -30,8 +30,6 @@ services:
       - app_backend_data:/app/data
     depends_on:
       mongodb:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     environment:
       MONGODB_URI: mongodb://mongodb:27017/jyotish
