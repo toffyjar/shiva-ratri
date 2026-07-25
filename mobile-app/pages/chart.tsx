@@ -125,9 +125,9 @@ export default function Chart({ onBack }: ChartProps) {
 
   return (
     <View style={styles.wrapper}>
-      <Appbar.Header  style={{ backgroundColor: '#2196f3' }}>
+      <Appbar.Header  style={{ backgroundColor: '#2196f3'}}>
         <Appbar.BackAction onPress={onBack} iconColor="#000" />
-        <Appbar.Content title="" titleStyle={{ color: '#000' }} />
+        <Appbar.Content title="Back" titleStyle={{ color: '#000' }} />
       </Appbar.Header>
       <View style={styles.pickerContainer}>
         <Picker
