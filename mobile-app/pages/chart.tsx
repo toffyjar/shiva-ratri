@@ -75,7 +75,7 @@ export default function Chart({ onBack }: ChartProps) {
   if (loading) {
     return (
       <View style={styles.wrapper}>
-        <Appbar.Header>
+        <Appbar.Header style={{ backgroundColor: '#2196f3' }}>
           <Appbar.BackAction onPress={onBack} iconColor="#000" />
           <Appbar.Content title="Birth Chart" titleStyle={{ color: '#000' }} />
         </Appbar.Header>
@@ -99,9 +99,9 @@ export default function Chart({ onBack }: ChartProps) {
 
   return (
     <View style={styles.wrapper}>
-      <Appbar.Header>
+      <Appbar.Header  style={{ backgroundColor: '#2196f3' }}>
         <Appbar.BackAction onPress={onBack} iconColor="#000" />
-        <Appbar.Content title="Birth Chart" titleStyle={{ color: '#000' }} />
+        <Appbar.Content title="" titleStyle={{ color: '#000' }} />
       </Appbar.Header>
       <View style={styles.pickerContainer}>
         <Picker
@@ -123,7 +123,7 @@ export default function Chart({ onBack }: ChartProps) {
 }
 
 const styles = StyleSheet.create({
-  wrapper: { flex: 1, backgroundColor: '#00FFFF' },
+  wrapper: { flex: 1 },
   container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' },
   pickerContainer: { backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#e0e0e0' },
 });
