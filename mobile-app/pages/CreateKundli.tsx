@@ -19,7 +19,7 @@ export default function CreateKundli({ onNavigateToView }: CreateKundliProps) {
   const renderScene = ({ route }: SceneRendererProps & { route: { key: string } }) => {
     switch (route.key) {
       case 'saved':
-        return <SavedKundalis />;
+        return <SavedKundalis onSelectKundali={() => setScreen('chart')} />;
       case 'new':
         return <NewKundli onCreateChart={() => setScreen('chart')} />;
       default:

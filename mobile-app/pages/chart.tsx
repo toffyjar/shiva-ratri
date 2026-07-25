@@ -4,18 +4,24 @@ import { Appbar } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
 import DrawChart from '../components/drawChart';
 import HttpService from '../services/httpService';
-import { formatChartData, formatTimeZoneForApi, ChartResponse, ChartProps, fallbackChartData, isChartData } from '../utils/chartPage';
+import { formatChartData, formatTimeZoneForApi, ChartResponse, ChartProps, fallbackChartData, isChartData, isKundliAlreadySaved, SavedKundaliRecord } from '../utils/chartPage';
 import { useKundliStore } from '../store/kundliStore';
+import { useAuthStore } from '../store/authStore';
+import { useSavedKundalisStore, SavedKundali } from '../store/savedKundalisStore';
 import { SvgXml } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
 
 const apiService = new HttpService('http://192.168.1.10:9393');
+const localApiService = new HttpService('http://192.168.1.10:5656');
 
 const VARGA_OPTIONS = ['D1', 'D2', 'D3', 'D4', 'D7', 'D9', 'D10', 'D12', 'D16', 'D20', 'D24', 'D27', 'D30', 'D40', 'D45', 'D60'];
 
 export default function Chart({ onBack }: ChartProps) {
-  const { latitude, longitude, year, month, day, hour, minute, timeZone } = useKundliStore();
+  const { name, day, month, year, hour, minute, birthPlace, latitude, longitude, timeZone, isFemale } = useKundliStore();
+  const token = useAuthStore((state) => state.token);
+  const savedKundalis = useSavedKundalisStore((state) => state.kundalis);
+  const addKundali = useSavedKundalisStore((state) => state.addKundali);
   const [chartData, setChartData] = React.useState<
     Record<number, { rashi: string; planets: string[] }>
   >(fallbackChartData);
@@ -33,6 +39,26 @@ export default function Chart({ onBack }: ChartProps) {
 
     (async () => {
       try {
+        try {
+          const currentKundli: SavedKundaliRecord = {
+            name, day, month, year, hour, minute, birthPlace, latitude, longitude, timeZone, isFemale,
+          };
+
+          if (!isKundliAlreadySaved(savedKundalis, currentKundli)) {
+            const saveResponse = await localApiService.post<SavedKundali>(
+              '/api/v1/save-kundali',
+              currentKundli,
+              token ? { Authorization: `Bearer ${token}` } : undefined
+            );
+
+            if (saveResponse.ok && saveResponse.data) {
+              addKundali(saveResponse.data);
+            }
+          }
+        } catch (error) {
+          console.log('Error saving kundali:', error);
+        }
+
         const params = {
           latitude,
           longitude,
@@ -70,7 +96,7 @@ export default function Chart({ onBack }: ChartProps) {
     return () => {
       cancelled = true;
     };
-  }, [latitude, longitude, year, month, day, hour, minute, timeZone, selectedVarga]);
+  }, [name, day, month, year, hour, minute, birthPlace, latitude, longitude, timeZone, isFemale, selectedVarga, token, savedKundalis]);
 
   if (loading) {
     return (

@@ -4,22 +4,22 @@ import { List, MD3Colors } from 'react-native-paper';
 
 import { savedKundalisPageStyles as styles } from '../custom-styles/savedKundalisPageStyles';
 import useKundliStore from '../store/kundliStore';
+import { useAuthStore } from '../store/authStore';
+import { useSavedKundalisStore } from '../store/savedKundalisStore';
 
-export default function SavedKundalis() {
-  const { latitude, longitude, year, month, day, hour, minute, timeZone } = useKundliStore();
-  const [kundalis, setKundalis] = React.useState([
-    { id: 1, name: 'Kundali 1' },
-    { id: 2, name: 'Kundali 2' },
-    { id: 3, name: 'Kundali 3' },
-  ]);
+type SavedKundalisProps = {
+  onSelectKundali?: () => void;
+};
 
-  const logInfo = () => {
-    console.log('Latitude:', latitude);
-    console.log('Longitude:', longitude);
-    console.log('Date:', `${year}-${month}-${day}`);
-    console.log('Time:', `${hour}:${minute}`);
-    console.log('Time Zone:', timeZone);
-  }
+export default function SavedKundalis({ onSelectKundali }: SavedKundalisProps) {
+  const loadKundli = useKundliStore((state) => state.loadKundli);
+  const token = useAuthStore((state) => state.token);
+  const kundalis = useSavedKundalisStore((state) => state.kundalis);
+  const fetchKundalis = useSavedKundalisStore((state) => state.fetchKundalis);
+
+  React.useEffect(() => {
+    fetchKundalis(token);
+  }, [token]);
 
   return (
     <View style={styles.container}>
@@ -30,8 +30,8 @@ export default function SavedKundalis() {
             title={kundali.name}
             left={() => <List.Icon icon="file" />}
             onPress={() => {
-              console.log('Item clicked!', kundali.id);
-              logInfo();
+              loadKundli(kundali);
+              onSelectKundali?.();
             }}
           />
         ))}

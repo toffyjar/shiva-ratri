@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func init() {
@@ -166,5 +167,55 @@ func TestSaveKundali_MissingUserContext(t *testing.T) {
 	resp := decodeErrorResponse(t, w)
 	if resp["error"] != "unauthorized" {
 		t.Errorf("expected error 'unauthorized', got %v", resp["error"])
+	}
+}
+
+// withUserContext stubs an authenticated request by injecting a user_id into
+// the gin context, simulating what AuthMiddleware would normally set.
+func withUserContext(h gin.HandlerFunc) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("user_id", uuid.New())
+		h(c)
+	}
+}
+
+func TestSaveKundali_MissingRequiredField(t *testing.T) {
+	h := newTestHandler()
+	router := gin.New()
+	router.POST("/save-kundali", withUserContext(h.SaveKundali))
+
+	// "day" is omitted, which should fail the model.Kundli binding
+	// validation before any store access occurs.
+	w := doJSONRequest(router, http.MethodPost, "/save-kundali", map[string]string{
+		"name":       "Arjun",
+		"month":      "08",
+		"year":       "1995",
+		"hour":       "10",
+		"minute":     "30",
+		"birthPlace": "Delhi, India",
+		"latitude":   "28.6139",
+		"longitude":  "77.2090",
+		"timeZone":   "+05:30",
+		"isFemale":   "Male",
+	})
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected status 400, got %d, body=%s", w.Code, w.Body.String())
+	}
+	resp := decodeErrorResponse(t, w)
+	if resp["error"] != "validation_error" {
+		t.Errorf("expected error 'validation_error', got %v", resp["error"])
+	}
+}
+
+func TestSaveKundali_EmptyBody(t *testing.T) {
+	h := newTestHandler()
+	router := gin.New()
+	router.POST("/save-kundali", withUserContext(h.SaveKundali))
+
+	w := doJSONRequest(router, http.MethodPost, "/save-kundali", map[string]string{})
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected status 400, got %d, body=%s", w.Code, w.Body.String())
 	}
 }

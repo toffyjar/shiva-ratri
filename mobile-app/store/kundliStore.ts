@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { SavedKundaliRecord } from '../utils/chartPage';
 
 type KundliState = {
   name: string;
@@ -24,6 +25,7 @@ type KundliState = {
   setLongitude: (value: string) => void;
   setTimeZone: (value: string) => void;
   setIsFemale: (value: string) => void;
+  loadKundli: (record: SavedKundaliRecord) => void;
   reset: () => void;
 };
 
@@ -55,6 +57,7 @@ export const useKundliStore = create<KundliState>((set) => ({
   setLongitude: (value) => set({ longitude: value }),
   setTimeZone: (value) => set({ timeZone: value }),
   setIsFemale: (value) => set({ isFemale: value }),
+  loadKundli: (record) => set({ ...record }),
   reset: () => set(initialState),
 }));
 

@@ -49,6 +49,20 @@ services:
       retries: 5
       start_period: 10s
 
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${MONGO_EXPRESS_PORT:-8091}:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: ${MONGO_EXPRESS_USERNAME:-webuser}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${MONGO_EXPRESS_PASSWORD:-webpassword}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
   jyotish_frontend:
     build:
       context: .

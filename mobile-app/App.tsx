@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import { ActivityIndicator, MD3LightTheme, PaperProvider } from 'react-native-paper';
 import { initDatabase } from './database/database';
 import { useAuthStore } from './store/authStore';
+import { useSavedKundalisStore } from './store/savedKundalisStore';
 
 // You can customize your theme using Material Design 3 (MD3) guidelines
 const theme = {
@@ -36,12 +37,19 @@ type AuthRoute = 'login' | 'register';
 export default function App() {
   const [route, setRoute] = React.useState<AppRoute>('create');
   const [authRoute, setAuthRoute] = React.useState<AuthRoute>('login');
-  const { isAuthenticated, isHydrating, hydrate, logout } = useAuthStore();
+  const { isAuthenticated, isHydrating, token, hydrate, logout } = useAuthStore();
+  const fetchKundalis = useSavedKundalisStore((state) => state.fetchKundalis);
 
   React.useEffect(() => {
     initDatabase();
     hydrate();
   }, []);
+
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      fetchKundalis(token);
+    }
+  }, [isAuthenticated, token]);
 
   const renderContent = () => {
     if (isHydrating) {

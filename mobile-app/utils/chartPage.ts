@@ -6,6 +6,39 @@ export type ChartProps = {
   onBack?: () => void;
 };
 
+export type SavedKundaliRecord = {
+  name: string;
+  day: string;
+  month: string;
+  year: string;
+  hour: string;
+  minute: string;
+  birthPlace: string;
+  latitude: string;
+  longitude: string;
+  timeZone: string;
+  isFemale: string;
+};
+
+export const isKundliAlreadySaved = (
+  records: SavedKundaliRecord[],
+  kundli: SavedKundaliRecord
+): boolean =>
+  records.some(
+    (record) =>
+      record.name === kundli.name &&
+      record.day === kundli.day &&
+      record.month === kundli.month &&
+      record.year === kundli.year &&
+      record.hour === kundli.hour &&
+      record.minute === kundli.minute &&
+      record.birthPlace === kundli.birthPlace &&
+      record.latitude === kundli.latitude &&
+      record.longitude === kundli.longitude &&
+      record.timeZone === kundli.timeZone &&
+      record.isFemale === kundli.isFemale
+  );
+
 export const fallbackChartData: Record<number, { rashi: string; planets: string[] }> = {
   // 1: { rashi: '2', planets: ['Asc', 'Ma'] },
   // 2: { rashi: '3', planets: ['Su', 'Me', 'Ve'] },
