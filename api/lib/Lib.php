@@ -216,9 +216,10 @@ class Lib
             'altitude' => 0
         ]);
 
-        $tz = $this->getNearestTimezone($latitude, $longitude);
+        # Use the caller's "+HH:MM" offset for the birth moment. Nearest-timezone guessing picked the
+        # wrong zone for much of India (Mumbai -> Karachi, Delhi -> Kathmandu) and used today's DST.
         # format datetime for DateTime Object
-        $datetime = sprintf("%s-%s-%s %s:%s:%s%s", $year, $month, $day, $hour, $min, $sec, $tz[1]);
+        $datetime = sprintf("%s-%s-%s %s:%s:%s%s", $year, $month, $day, $hour, $min, $sec, $time_zone);
         $date = new DateTime($datetime);
 
         # perform DST offest
