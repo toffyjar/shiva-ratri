@@ -99,6 +99,15 @@ To install and run the Vedic Astrology API locally, follow these steps:
 
    Visit [http://localhost:9393/api/ping](http://localhost:9393/api/ping) to check if the API is up and running.
 
+## Access control (optional)
+
+The API is open by default. To restrict it, set these environment variables on the host (never in a committed file):
+
+- `SR_API_KEYS`: one or more keys, comma-separated. When set, every `/api/*` request except `/api/ping` must send one of them in the `X-SR-Key` header, or it gets `401`.
+- `SR_ALLOWED_IPS` (optional): IPs or CIDR ranges, comma-separated, allowed without a key (for example, your own machine for the Swagger page).
+
+`/` and `/api/ping` stay open for health checks. The caller's address is the right-most public address in `X-Forwarded-For`, so a caller cannot fake an allowed address. Give each client its own key, so one can be revoked without touching the others.
+
 ## API Documentation
 
 The API documentation is available via Swagger UI:

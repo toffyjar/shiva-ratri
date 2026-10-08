@@ -40,6 +40,11 @@ RUN php bin/console cache:clear --no-warmup && \
     mkdir -p var/cache var/log && \
     chown -R www-data:www-data var && chmod -R 775 var
 
+# Let PHP-FPM see the container's environment variables (SR_API_KEYS, SR_ALLOWED_IPS, ...): by default
+# FPM clears them before running PHP.
+RUN sed -i 's/^;\?clear_env = .*/clear_env = no/' /etc/php/8.3/fpm/pool.d/www.conf && \
+    grep -q '^clear_env = no' /etc/php/8.3/fpm/pool.d/www.conf
+
 # Configure Nginx
 COPY docker/nginx.conf /etc/nginx/sites-available/default
 
