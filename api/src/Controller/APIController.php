@@ -33,7 +33,8 @@ class APIController extends AbstractController
      *         description="Success response",
      *         @OA\JsonContent(
      *             type="object",
-     *             @OA\Property(property="pong", type="string", example="success")
+     *             @OA\Property(property="pong", type="string", example="success"),
+     *             @OA\Property(property="access_gate", type="string", example="on")
      *         )
      *     )
      * )
@@ -42,6 +43,8 @@ class APIController extends AbstractController
     {
         return $this->json([
             'pong' => "success",
+            // Whether calls need an X-SR-Key (ApiAccessSubscriber); never the keys themselves.
+            'access_gate' => \App\EventSubscriber\ApiAccessSubscriber::enabled() ? 'on' : 'off',
         ], 200);
     }
 

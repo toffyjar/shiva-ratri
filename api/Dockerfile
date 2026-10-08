@@ -50,5 +50,6 @@ COPY docker/nginx.conf /etc/nginx/sites-available/default
 
 EXPOSE 8080
 
-# Start PHP-FPM + Nginx
-CMD service php8.3-fpm start && nginx -g "daemon off;"
+# Start PHP-FPM + Nginx. PHP-FPM is started directly, not with "service": "service" runs it with an
+# emptied environment (env -i), which would hide SR_API_KEYS and other settings from PHP.
+CMD mkdir -p /run/php && php-fpm8.3 --daemonize && nginx -g "daemon off;"
