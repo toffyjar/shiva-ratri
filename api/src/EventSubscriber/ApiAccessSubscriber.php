@@ -41,6 +41,11 @@ class ApiAccessSubscriber implements EventSubscriberInterface
         return array_values(array_filter(array_map('trim', explode(',', $value)), 'strlen'));
     }
 
+    public static function enabled(): bool
+    {
+        return (bool) self::list(self::setting('SR_API_KEYS'));
+    }
+
     public static function clientIp(Request $request): string
     {
         $chain = self::list((string) $request->headers->get('X-Forwarded-For', ''));
